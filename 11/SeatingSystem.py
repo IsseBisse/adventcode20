@@ -79,17 +79,19 @@ class Seats:
 		max_row = len(self.old_seats)
 		max_col = len(self.old_seats[0])
 
+		
 		num_adjacent = 0
 		for dir_ in DIRECTIONS:
 			pos = [i + dir_[0], j + dir_[1]]
 
 			while (pos[0] >= 0 and pos[0] < max_row) and (pos[1] >= 0 and pos[1] < max_col):
-				if self.old_seats[pos[0]][pos[1]] == 1:
-					num_adjacent += 1
+				if self.old_seats[pos[0]][pos[1]] != -1:
+					num_adjacent += 1 if self.old_seats[pos[0]][pos[1]] else 0
 					break
 
 				pos = [pos[k] + dir_[k] for k in range(2)]
 
+				
 		return num_adjacent
 
 	def state_unchanged(self):
@@ -105,7 +107,7 @@ class Seats:
 		return True 
 
 def part_one():
-	data = get_data("smallInput.txt")
+	data = get_data("input.txt")
 	seats = Seats(data)
 
 	print(seats)
@@ -115,14 +117,14 @@ def part_one():
 		print("Num occ: %d" % seats.get_num_occupied())
 	
 def part_two():
-	data = get_data("smallInput.txt")
+	data = get_data("input.txt")
 	seats = Seats(data)
 
-	print(seats)
 	while not seats.state_unchanged():
 		seats.simulate_change(seats.get_num_visible_adjacent, 5)
-		print(seats)
-		print("Num occ: %d" % seats.get_num_occupied())
+		#print(seats)
+	
+	print("Num occ: %d" % seats.get_num_occupied())
 
 if __name__ == '__main__':
 	part_two()
