@@ -1,3 +1,5 @@
+import math
+
 def get_data(path):
 	with open(path) as file:
 		data = file.read().split("\n")
@@ -28,7 +30,6 @@ def part_one():
 # ====
 # Naive was too slow
 # ====
-
 # def get_depart_diff(buses, timestamp):
 # 	depart_diff = list()
 # 	for bus in buses:
@@ -38,7 +39,7 @@ def part_one():
 # 	return depart_diff	
 
 # def part_two():
-# 	_, buses = get_data("input.txt")
+# 	_, buses = get_data("smallInput.txt")
 # 	buses = [int(id_) if id_ != "x" else None for id_ in buses]
 # 	INCR = buses[0]
 
@@ -59,7 +60,25 @@ def part_one():
 # 		timestamp += INCR
 
 # 	timestamp -= INCR
-# 	print(timestamp, depart_diff)
+
+def get_depart_diff(timestamp, bus_id):
+	last_missed_bus_diff = timestamp % bus_id
+	return bus_id - last_missed_bus_diff if last_missed_bus_diff != 0 else 0
+
+def find_timestamps(offset, incr, bus_id, correct_diff):
+	timestamp = offset
+
+	correct_timestamps = list()
+	for i in range(2):
+		while correct_diff != get_depart_diff(timestamp, bus_id):			
+			timestamp += incr
+			
+		correct_timestamps.append(timestamp)
+		timestamp += incr
+
+	next_offset = correct_timestamps[0]
+	next_incr = correct_timestamps[1] - correct_timestamps[0]
+	return next_offset, next_incr
 
 def part_two():
 	_, buses = get_data("smallInput.txt")
@@ -71,8 +90,15 @@ def part_two():
 			filtered_buses.append(bus)
 			CORRECT_DEPART_DIFF.append(i)
 
-	print(buses)
-	print(filtered_buses, CORRECT_DEPART_DIFF)
+	offset = 0
+	incr = filtered_buses[0]
+	for i, bus_id in enumerate(filtered_buses[1:]):
+		correct_diff = CORRECT_DEPART_DIFF[i+1]
+		print(offset, incr, bus_id, correct_diff)
+		offset, incr = find_timestamps(offset, incr, bus_id, correct_diff)
+		print("%d of %d done!" % (i+1, len(filtered_buses)))
+
+	print(offset)
 
 if __name__ == '__main__':
 	#part_one()
