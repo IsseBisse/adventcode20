@@ -1,4 +1,5 @@
 import math
+from CheatModule import arrow_alignment, extended_gcd, combine_phased_rotations
 
 def get_data(path):
 	with open(path) as file:
@@ -27,78 +28,43 @@ def part_one():
 
 	print("Bus: %d, wait: %d, answer: %d" % (bus_id, shortest_wait, bus_id * shortest_wait))
 
-# ====
-# Naive was too slow
-# ====
-# def get_depart_diff(buses, timestamp):
-# 	depart_diff = list()
-# 	for bus in buses:
-# 		last_missed_bus_diff = timestamp % bus
-# 		depart_diff.append(bus - last_missed_bus_diff if last_missed_bus_diff != 0 else 0)
+def get_next_offset(first, second, offset):
+	return arrow_alignment(first, second, offset)
 
-# 	return depart_diff	
-
-# def part_two():
-# 	_, buses = get_data("smallInput.txt")
-# 	buses = [int(id_) if id_ != "x" else None for id_ in buses]
-# 	INCR = buses[0]
-
-# 	filtered_buses = list()
-# 	CORRECT_DEPART_DIFF = list()
-# 	for i, bus in enumerate(buses):
-# 		if bus is not None:
-# 			filtered_buses.append(bus)
-# 			CORRECT_DEPART_DIFF.append(i)
-
-# 	print(buses)
-# 	print(filtered_buses, CORRECT_DEPART_DIFF)
-
-# 	timestamp = 0
-# 	depart_diff = [0] * len(filtered_buses)
-# 	while CORRECT_DEPART_DIFF != depart_diff:
-# 		depart_diff = get_depart_diff(filtered_buses, timestamp)
-# 		timestamp += INCR
-
-# 	timestamp -= INCR
-
-def get_depart_diff(timestamp, bus_id):
-	last_missed_bus_diff = timestamp % bus_id
-	return bus_id - last_missed_bus_diff if last_missed_bus_diff != 0 else 0
-
-def find_timestamps(offset, incr, bus_id, correct_diff):
-	timestamp = offset
-
-	correct_timestamps = list()
-	for i in range(2):
-		while correct_diff != get_depart_diff(timestamp, bus_id):			
-			timestamp += incr
-			
-		correct_timestamps.append(timestamp)
-		timestamp += incr
-
-	next_offset = correct_timestamps[0]
-	next_incr = correct_timestamps[1] - correct_timestamps[0]
-	return next_offset, next_incr
+def get_next_step(first, second):
+    return abs(first*second) // math.gcd(first, second)
 
 def part_two():
-	_, buses = get_data("smallInput.txt")
-	buses = [int(id_) if id_ != "x" else None for id_ in buses]
-	filtered_buses = list()
-	CORRECT_DEPART_DIFF = list()
-	for i, bus in enumerate(buses):
-		if bus is not None:
-			filtered_buses.append(bus)
-			CORRECT_DEPART_DIFF.append(i)
+	# Get and parse data
+	_, buses = get_data("input.txt")
+	relevant_buses = list()
+	offsets = list()
+	for i, bus_id in enumerate(buses):
+		if bus_id != "x":
+			offsets.append(-i)
+			relevant_buses.append(int(bus_id))
+	print(relevant_buses, offsets)
 
-	offset = 0
-	incr = filtered_buses[0]
-	for i, bus_id in enumerate(filtered_buses[1:]):
-		correct_diff = CORRECT_DEPART_DIFF[i+1]
-		print(offset, incr, bus_id, correct_diff)
-		offset, incr = find_timestamps(offset, incr, bus_id, correct_diff)
-		print("%d of %d done!" % (i+1, len(filtered_buses)))
+	for i in range(1000):
+		if (i % 3 == 0 and
+			(i+1) % 5 == 0 and
+			(i+2) % 4 == 0):
+			break
 
-	print(offset)
+	print(i)
+
+
+	first_period = relevant_buses[0]
+	first_phase = offsets[0]
+	for i in range(1, len(relevant_buses)):
+		second_period = relevant_buses[i]
+		second_phase = offsets[i]
+		
+		first_period, first_phase = combine_phased_rotations(first_period, first_phase,
+			second_period, second_phase)
+
+	print(first_phase)
+
 
 if __name__ == '__main__':
 	#part_one()
